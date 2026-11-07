@@ -178,34 +178,3 @@ Ejemplo de cuerpo para `POST /api/transacciones`:
 
 `operacion` puede ser `deposito` (solo `idReceptor`), `retiro` (solo `idEmisor`) o `transferencia` (ambos).
 
-## Solución de problemas
-
-| Mensaje o síntoma | Causa y solución |
-|---|---|
-| `ECONNREFUSED ::1:5432` | El `.env` no se está leyendo y la conexión va a `localhost`. Verifica que se llame exactamente `.env` (no `.env.txt`), que esté junto a `server.js` y que tenga `DATABASE_URL`. |
-| `Unexpected token '<', "<!DOCTYPE"...` en la página | Está corriendo un `server.js` antiguo sin las rutas nuevas. Detén el servidor con Ctrl + C, confirma que el archivo sea el actualizado y vuelve a ejecutar `node server.js`. |
-| `password authentication failed` | La cadena de conexión está incompleta o con la contraseña mal copiada. Cópiala de nuevo desde Neon. |
-| `relation "osba.cliente" does not exist` | Las tablas no se crearon en esa base o rama de Neon. Ejecuta `DDL.sql` en el SQL Editor del proyecto correcto. |
-| Timeout o demora en la primera carga | Neon suspende la base tras unos minutos sin uso; la primera conexión tarda unos segundos en despertarla. Intenta de nuevo. |
-| `EADDRINUSE: address already in use :::3000` | Ya hay otro proceso en el puerto 3000. Cierra la otra terminal o cambia `PORT` en el `.env`. |
-| `Cannot find module 'express'` | Faltó instalar las dependencias. Ejecuta `npm install express pg dotenv`. |
-| Las banderas no aparecen | No hay conexión a internet o `flagcdn.com` está bloqueado. El selector funciona igual, solo sin imágenes. |
-
-## Notas técnicas
-
-- El servidor usa los ids `1`, `2` y `3` de `TipoTransaccion` como Depósito, Retiro y Transferencia. Si modificas esos registros, ajusta la línea `const tipo = { deposito: 1, retiro: 2, transferencia: 3 }` en `server.js`.
-- `Cuenta.tipoMoneda` es texto y el servidor lo relaciona con `Divisa` por nombre exacto. Una mejora recomendada es reemplazarlo por una llave foránea `idDivisa`.
-- Los montos se guardan en `NUMERIC(18,2)` y las tasas de cambio en `NUMERIC(18,8)`. `Divisa.valorDolar` indica cuántos dólares vale una unidad de la divisa (por ejemplo, COP = 0.00025).
-- Todas las consultas usan parámetros (`$1`, `$2`...) para evitar inyección SQL.
-- **Seguridad:** la página no tiene autenticación, por lo que cualquiera con acceso a la URL puede crear clientes y mover dinero. Úsala solo en un entorno de práctica o agrega login y permisos por rol antes de publicarla.
-- Nunca subas el archivo `.env` a GitHub.
-
-## Próximos pasos sugeridos
-
-1. Login con las contraseñas encriptadas (`bcrypt`) y permisos según la tabla `Rol`.
-2. Conversión de divisas con la tasa banco y descuento del 2 %.
-3. Validación del horario de la sucursal en depósitos y retiros.
-4. Alerta al supervisor en retiros superiores a $600 USD.
-5. Marcado automático de cuentas inactivas tras 180 días.
-6. Vínculo gerente–sucursal e informe de auditoría descargable al cierre.
-7. Apertura de cuentas con depósito inicial desde la página.
