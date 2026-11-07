@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OSBA Bank</title>
+<style>
+:root{--bg:#f3f5f9;--card:#fff;--tx:#1b2433;--mu:#6b778c;--bd:#e2e7ef;--side:#0f2a4a;--ac:#1f6feb;--ok:#0f8a4f;--okb:#e3f5ec;--no:#b42318;--nob:#fde8e6;--in:#f7f9fc}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1420;--card:#161f2e;--tx:#e8edf5;--mu:#93a1b8;--bd:#263247;--side:#091524;--ac:#5b9bff;--ok:#4cd08a;--okb:#12362a;--no:#ff8a80;--nob:#3b1a18;--in:#1b2638}}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--tx);display:flex;min-height:100vh}
+aside{width:220px;background:var(--side);color:#fff;padding:20px 12px;position:sticky;top:0;height:100vh;flex-shrink:0}
+.logo{font-size:20px;font-weight:700;padding:0 10px 20px;letter-spacing:.5px}.logo span{color:#6cb2ff}
+nav button{display:block;width:100%;text-align:left;background:none;border:0;color:#c5d3e8;padding:10px 12px;border-radius:8px;font:inherit;cursor:pointer;margin-bottom:2px}
+nav button:hover{background:rgba(255,255,255,.08)}nav button.on{background:var(--ac);color:#fff}
+main{flex:1;padding:28px;min-width:0;max-width:1200px}
+h1{margin:0 0 4px;font-size:22px}.sub{color:var(--mu);margin:0 0 20px}
+section{display:none}section.on{display:block}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:18px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px}
+.card small{color:var(--mu);display:block}.card b{font-size:26px}
+.grid2{display:grid;grid-template-columns:1fr 1.6fr;gap:14px}
+.card h3{margin:0 0 10px;font-size:15px}
+.saldo{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--bd)}.saldo:first-of-type{border-top:0}
+.bar{display:flex;gap:10px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+input,select,button.btn{font:inherit;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--in);color:var(--tx)}
+.buscar{flex:1;min-width:200px}
+button.btn{background:var(--ac);color:#fff;border:0;cursor:pointer;font-weight:600}
+.tw{overflow-x:auto;background:var(--card);border:1px solid var(--bd);border-radius:12px}
+table{width:100%;border-collapse:collapse;white-space:nowrap}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--bd)}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--mu);background:var(--in)}
+tr:last-child td{border-bottom:0}tbody tr:hover{background:var(--in)}
+.r{text-align:right}.vacio{text-align:center;color:var(--mu);padding:24px}
+.badge{padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600}
+.badge.ok{background:var(--okb);color:var(--ok)}.badge.no{background:var(--nob);color:var(--no)}
+details{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 16px;margin-bottom:14px}
+summary{cursor:pointer;font-weight:600}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:14px}
+label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mu)}
+label input,label select{font-size:14px;color:var(--tx)}
+form .btn{align-self:end}
+.pager{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:12px;color:var(--mu)}
+.pager label{flex-direction:row;align-items:center;gap:6px;font-size:14px}
+.pager select{padding:4px 8px}.pager .btn{padding:6px 12px}
+.pager .btn:disabled{opacity:.4;cursor:not-allowed}
+label,.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mu)}
+.tel{display:flex;gap:6px}.tel>input{flex:1;min-width:0}
+.cc{position:relative}
+#ccBtn{display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--in);color:var(--tx);font:inherit;cursor:pointer;white-space:nowrap}
+#ccMenu{position:absolute;top:100%;left:0;margin-top:4px;width:300px;max-width:80vw;background:var(--card);border:1px solid var(--bd);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:5;padding:8px}
+#ccMenu[hidden]{display:none}#ccBuscar{width:100%;color:var(--tx)}
+#ccLista{list-style:none;margin:8px 0 0;padding:0;max-height:240px;overflow-y:auto}
+#ccLista li{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:6px;cursor:pointer;color:var(--tx);font-size:14px}
+#ccLista li:hover{background:var(--in)}#ccLista li b{margin-left:auto;color:var(--mu);font-weight:500}
+.flag{width:20px;height:15px;object-fit:cover;border-radius:2px;flex-shrink:0}
+#toast{position:fixed;bottom:20px;right:20px;padding:12px 18px;border-radius:10px;color:#fff;display:none;max-width:320px;z-index:9}
+@media(max-width:800px){body{flex-direction:column}aside{width:100%;height:auto;position:static;padding:10px}nav{display:flex;overflow-x:auto;gap:4px}nav button{width:auto;white-space:nowrap}.logo{padding-bottom:8px}main{padding:16px}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<aside>
+  <div class="logo">OSBA <span>Bank</span></div>
+  <nav>
+    <button data-v="resumen" class="on">Resumen</button>
+    <button data-v="clientes">Clientes</button>
+    <button data-v="cuentas">Cuentas</button>
+    <button data-v="transacciones">Transacciones</button>
+    <button data-v="sucursales">Sucursales</button>
+    <button data-v="empleados">Empleados</button>
+    <button data-v="auditoria">Auditoría</button>
+  </nav>
+</aside>
+
+<main>
+  <section id="v-resumen" class="on">
+    <h1>Resumen</h1><p class="sub">Estado general del banco</p>
+    <div class="cards" id="cards"></div>
+    <div class="grid2">
+      <div class="card"><h3>Saldo total por moneda</h3><div id="saldos"></div></div>
+      <div class="card"><h3>Últimas transacciones</h3><div id="ultimas"></div></div>
+    </div>
+  </section>
+
+  <section id="v-clientes">
+    <h1>Clientes</h1><p class="sub">Personas registradas en el banco</p>
+    <details><summary>+ Nuevo cliente</summary>
+      <form id="fCliente">
+        <label>Nombre completo<input name="nombre" required maxlength="100"></label>
+        <label>Tipo de documento<select name="idTipoDocumento" id="selTipoDoc" required></select></label>
+        <label>Número de documento<input name="numeroDocumento" type="number" required></label>
+        <label>Correo<input name="correo" type="email" required></label>
+        <div class="f"><span>Teléfono</span>
+          <div class="tel">
+            <div class="cc">
+              <button type="button" id="ccBtn"></button>
+              <div id="ccMenu" hidden><input id="ccBuscar" placeholder="Buscar país o código…" autocomplete="off"><ul id="ccLista"></ul></div>
+            </div>
+            <input id="telNum" inputmode="numeric" required maxlength="15" pattern="[0-9 ]{4,15}" placeholder="300 123 4567">
+          </div>
+        </div>
+        <label>Fecha de nacimiento<input name="fechaNacimiento" type="date" required></label>
+        <label>Lugar de nacimiento<input name="lugarNacimiento" required></label>
+        <label>Dirección<input name="direccion" required></label>
+        <button class="btn">Guardar cliente</button>
+      </form>
+    </details>
+    <div class="bar"><input class="buscar" data-v="clientes" placeholder="Buscar cliente…"></div>
+    <div id="t-clientes"></div>
+  </section>
+
+  <section id="v-cuentas">
+    <h1>Cuentas</h1><p class="sub">Cuentas con su titular, sucursal y saldo</p>
+    <div class="bar"><input class="buscar" data-v="cuentas" placeholder="Buscar por cliente, número de cuenta…"></div>
+    <div id="t-cuentas"></div>
+  </section>
+
+  <section id="v-transacciones">
+    <h1>Transacciones</h1><p class="sub">Depósitos, retiros y transferencias</p>
+    <details><summary>+ Nueva transacción</summary>
+      <form id="fTrx">
+        <label>Operación<select id="op" name="operacion">
+          <option value="transferencia">Transferencia</option><option value="deposito">Depósito</option><option value="retiro">Retiro</option></select></label>
+        <label id="lEm">Cuenta origen<select id="selEm" name="idEmisor"></select></label>
+        <label id="lRe">Cuenta destino<select id="selRe" name="idReceptor"></select></label>
+        <label>Monto<input name="monto" type="number" step="0.01" min="0.01" required></label>
+        <button class="btn">Ejecutar</button>
+      </form>
+    </details>
+    <div class="bar"><input class="buscar" data-v="transacciones" placeholder="Buscar transacción…"></div>
+    <div id="t-transacciones"></div>
+  </section>
+
+  <section id="v-sucursales">
+    <h1>Sucursales</h1><p class="sub">Horarios, personal y cuentas abiertas</p>
+    <div class="bar"><input class="buscar" data-v="sucursales" placeholder="Buscar sucursal…"></div>
+    <div id="t-sucursales"></div>
+  </section>
+
+  <section id="v-empleados">
+    <h1>Empleados</h1><p class="sub">Personal y su sucursal</p>
+    <div class="bar"><input class="buscar" data-v="empleados" placeholder="Buscar empleado…"></div>
+    <div id="t-empleados"></div>
+  </section>
+
+  <section id="v-auditoria">
+    <h1>Auditoría</h1><p class="sub">Historial de cambios de saldo por cuenta</p>
+    <div class="bar"><input class="buscar" data-v="auditoria" placeholder="Buscar por cuenta u operación…"></div>
+    <div id="t-auditoria"></div>
+  </section>
+</main>
+<div id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = v => Number(v).toLocaleString('es-CO', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const fecha = v => new Date(v).toLocaleString('es-CO', {dateStyle: 'medium', timeStyle: 'short'});
+const badge = (ok, t, f) => `<span class="badge ${ok ? 'ok' : 'no'}">${ok ? t : f}</span>`;
+const activo = r => badge(r.estado, 'Activo', 'Inactivo');
+
+async function api(url, opt) {
+  const r = await fetch(url, opt), d = await r.json();
+  if (!r.ok) throw new Error(d.error || 'Error del servidor');
+  return d;
+}
+function aviso(msg, ok = true) {
+  const t = $('#toast'); t.textContent = msg; t.style.background = ok ? '#0f8a4f' : '#b42318';
+  t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 3500);
+}
+
+// Columnas de cada tabla: [encabezado, función, clase]
+const C = {
+  clientes: {url: '/api/clientes', cols: [
+    ['ID', r => r.id], ['Nombre', r => esc(r.nombre)],
+    ['Documento', r => `${esc(r.tipoDocumento)} ${esc(r.numeroDocumento)}`],
+    ['Correo', r => esc(r.correo)], ['Teléfono', r => esc(r.telefono)],
+    ['Nació en', r => esc(r.lugarNacimiento)], ['Estado', activo]]},
+  cuentas: {url: '/api/cuentas', cols: [
+    ['N° cuenta', r => esc(r.numeroCuenta)], ['Titular', r => esc(r.cliente)], ['Tipo', r => esc(r.tipoCuenta)],
+    ['Sucursal', r => esc(r.sucursal)], ['Estado', r => badge(r.estadoCuenta === 'Activa', 'Activa', esc(r.estadoCuenta))],
+    ['Saldo', r => `${num(r.saldo)} <small>${esc(r.tipoMoneda)}</small>`, 'r']]},
+  transacciones: {url: '/api/transacciones', cols: [
+    ['Fecha', r => fecha(r.fechaHora)], ['Tipo', r => esc(r.tipo)],
+    ['Origen', r => esc(r.emisor || '—')], ['Destino', r => esc(r.receptor || '—')],
+    ['Monto', r => `${num(r.monto)} <small>${esc(r.divisa)}</small>`, 'r'],
+    ['Estado', r => badge(r.estado, 'Completada', 'Fallida')]]},
+  sucursales: {url: '/api/sucursales', cols: [
+    ['ID', r => r.id], ['Sucursal', r => esc(r.nombre)], ['Horario', r => `${r.apertura} – ${r.cierre}`],
+    ['Empleados', r => r.empleados, 'r'], ['Cuentas', r => r.cuentas, 'r'], ['Estado', activo]]},
+  empleados: {url: '/api/empleados', cols: [
+    ['ID', r => r.id], ['Nombre', r => esc(r.nombre)], ['Rol', r => esc(r.rol)],
+    ['Sucursal', r => esc(r.sucursal)], ['Correo', r => esc(r.correo)], ['Estado', activo]]},
+  auditoria: {url: '/api/auditoria', cols: [
+    ['Fecha', r => fecha(r.fechaHora)], ['Cuenta', r => esc(r.numeroCuenta)],
+    ['Operación', r => esc(r.tipoOperacion)], ['Anterior', r => num(r.valorAnterior), 'r'],
+    ['Nuevo', r => num(r.valorNuevo), 'r'], ['Contable', r => num(r.saldoContable), 'r'],
+    ['Retenido', r => num(r.saldoRetenido), 'r']]},
+};
+const datos = {};
+let cat = {tiposDocumento: [], cuentas: []};
+
+function tabla(cols, rows) {
+  return `<div class="tw"><table><thead><tr>${cols.map(c => `<th class="${c[2] || ''}">${c[0]}</th>`).join('')}</tr></thead><tbody>${
+    rows.map(r => `<tr>${cols.map(c => `<td class="${c[2] || ''}">${c[1](r)}</td>`).join('')}</tr>`).join('')
+    || `<tr><td colspan="9" class="vacio">Sin resultados</td></tr>`}</tbody></table></div>`;
+}
+let tam = 10;          // registros por página: 10, 15 o 20
+const pagina = {};     // página actual de cada vista
+function pintar(v, reiniciar) {
+  const q = ($(`.buscar[data-v="${v}"]`).value || '').toLowerCase();
+  const rows = datos[v].filter(r => !q || Object.values(r).join(' ').toLowerCase().includes(q));
+  if (reiniciar) pagina[v] = 1;
+  const total = Math.max(1, Math.ceil(rows.length / tam));
+  const p = Math.min(pagina[v] || 1, total);
+  pagina[v] = p;
+  const ini = (p - 1) * tam, fin = Math.min(ini + tam, rows.length);
+  $('#t-' + v).innerHTML = tabla(C[v].cols, rows.slice(ini, fin)) + `
+    <div class="pager">
+      <label>Mostrar <select class="tam">${[10, 15, 20].map(n => `<option ${n === tam ? 'selected' : ''}>${n}</option>`).join('')}</select> por página</label>
+      <span>${rows.length ? ini + 1 : 0}–${fin} de ${rows.length}</span>
+      <span>
+        <button class="btn" data-pg="-1" data-v="${v}" ${p <= 1 ? 'disabled' : ''}>‹ Anterior</button>
+        Página ${p} de ${total}
+        <button class="btn" data-pg="1" data-v="${v}" ${p >= total ? 'disabled' : ''}>Siguiente ›</button>
+      </span>
+    </div>`;
+}
+
+async function resumen() {
+  const [r, trx] = await Promise.all([api('/api/resumen'), api('/api/transacciones')]);
+  const t = r.totales;
+  $('#cards').innerHTML = [['Clientes', t.clientes], ['Cuentas', t.cuentas], ['Sucursales', t.sucursales], ['Transacciones', t.transacciones]]
+    .map(([n, v]) => `<div class="card"><small>${n}</small><b>${v}</b></div>`).join('');
+  $('#saldos').innerHTML = r.saldos.map(s =>
+    `<div class="saldo"><span>${esc(s.tipoMoneda)} <small>(${s.cuentas} cuentas)</small></span><b>${num(s.total)}</b></div>`).join('');
+  const cols = C.transacciones.cols.filter((_, i) => [0, 1, 4].includes(i));
+  $('#ultimas').innerHTML = tabla(cols, trx.slice(0, 6));
+}
+
+async function cargarCatalogos() {
+  cat = await api('/api/catalogos');
+  $('#selTipoDoc').innerHTML = cat.tiposDocumento.map(t => `<option value="${t.id}">${esc(t.nombre)}</option>`).join('');
+  const op = c => `<option value="${c.id}">${esc(c.numeroCuenta)} · ${esc(c.cliente)} · ${num(c.saldo)} ${esc(c.tipoMoneda)}</option>`;
+  $('#selEm').innerHTML = cat.cuentas.map(op).join('');
+  actualizarForm();
+}
+// Muestra/oculta campos según la operación y filtra destino por la misma moneda del origen
+function actualizarForm() {
+  const o = $('#op').value;
+  $('#lEm').style.display = o === 'deposito' ? 'none' : '';
+  $('#lRe').style.display = o === 'retiro' ? 'none' : '';
+  const em = cat.cuentas.find(c => c.id == $('#selEm').value);
+  const dest = cat.cuentas.filter(c => o === 'deposito' || (c.id != $('#selEm').value && (!em || c.tipoMoneda === em.tipoMoneda)));
+  $('#selRe').innerHTML = dest.map(c => `<option value="${c.id}">${esc(c.numeroCuenta)} · ${esc(c.cliente)} · ${esc(c.tipoMoneda)}</option>`).join('');
+}
+
+async function ir(v) {
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  document.querySelectorAll('section').forEach(s => s.classList.toggle('on', s.id === 'v-' + v));
+  try {
+    if (v === 'resumen') return await resumen();
+    datos[v] = await api(C[v].url); pintar(v, true);
+    if (v === 'clientes' || v === 'transacciones') await cargarCatalogos();
+  } catch (e) { aviso(e.message, false); }
+}
+
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => ir(b.dataset.v));
+document.querySelectorAll('.buscar').forEach(i => i.oninput = () => pintar(i.dataset.v, true));
+// ---------- Selector de indicativo con bandera ----------
+// Windows no dibuja emojis de banderas, por eso se usan imágenes de flagcdn.com
+const PAISES = ('AF:93,AL:355,DE:49,AD:376,AO:244,AI:1264,AG:1268,SA:966,DZ:213,AR:54,AM:374,AW:297,AU:61,AT:43,AZ:994,BS:1242,BD:880,BB:1246,BH:973,BE:32,BZ:501,BJ:229,BM:1441,BY:375,MM:95,BO:591,BA:387,BW:267,BR:55,BN:673,BG:359,BF:226,BI:257,BT:975,CV:238,KH:855,CM:237,CA:1,QA:974,TD:235,CL:56,CN:86,CY:357,CO:57,KM:269,KP:850,KR:82,CR:506,CI:225,HR:385,CU:53,CW:599,DK:45,DJ:253,DM:1767,EC:593,EG:20,SV:503,AE:971,ER:291,SK:421,SI:386,ES:34,US:1,EE:372,ET:251,PH:63,FI:358,FJ:679,FR:33,GA:241,GM:220,GE:995,GH:233,GI:350,GD:1473,GR:30,GL:299,GP:590,GU:1671,GT:502,GF:594,GG:44,GN:224,GQ:240,GW:245,GY:592,HT:509,HN:504,HK:852,HU:36,IN:91,ID:62,IQ:964,IR:98,IE:353,IS:354,KY:1345,CK:682,FO:298,FK:500,MP:1670,MH:692,SB:677,TC:1649,VG:1284,VI:1340,IL:972,IT:39,JM:1876,JP:81,JE:44,JO:962,KZ:7,KE:254,KG:996,KI:686,XK:383,KW:965,LA:856,LS:266,LV:371,LB:961,LR:231,LY:218,LI:423,LT:370,LU:352,MO:853,MK:389,MG:261,MY:60,MW:265,MV:960,ML:223,MT:356,MA:212,MQ:596,MU:230,MR:222,YT:262,MX:52,FM:691,MD:373,MC:377,MN:976,ME:382,MS:1664,MZ:258,NA:264,NR:674,NP:977,NI:505,NE:227,NG:234,NO:47,NC:687,NZ:64,OM:968,NL:31,PK:92,PW:680,PS:970,PA:507,PG:675,PY:595,PE:51,PF:689,PL:48,PT:351,PR:1787,GB:44,CF:236,CZ:420,CD:243,DO:1809,CG:242,RE:262,RW:250,RO:40,RU:7,WS:685,AS:1684,SM:378,PM:508,VC:1784,KN:1869,LC:1758,SX:1721,VA:379,ST:239,SN:221,RS:381,SC:248,SL:232,SG:65,SY:963,SO:252,LK:94,SZ:268,ZA:27,SD:249,SS:211,SE:46,CH:41,SR:597,TH:66,TW:886,TZ:255,TJ:992,TL:670,TG:228,TK:690,TO:676,TT:1868,TN:216,TM:993,TR:90,TV:688,UA:380,UG:256,UY:598,UZ:998,VU:678,VE:58,VN:84,WF:681,YE:967,ZM:260,ZW:263')
+  .split(',').map(x => { const [iso, dial] = x.split(':'); return {iso, dial}; });
+const nombresPais = new Intl.DisplayNames(['es'], {type: 'region'});
+PAISES.forEach(p => { try { p.nombre = nombresPais.of(p.iso) || p.iso; } catch { p.nombre = p.iso; } });
+PAISES.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+let pais = PAISES.find(p => p.iso === 'CO');
+const bandera = iso => `<img class="flag" src="https://flagcdn.com/w40/${iso.toLowerCase()}.png" alt="${iso}" loading="lazy">`;
+
+function pintarBotonPais() { $('#ccBtn').innerHTML = `${bandera(pais.iso)} +${pais.dial} ▾`; }
+function pintarPaises() {
+  const q = $('#ccBuscar').value.toLowerCase().replace('+', '').trim();
+  $('#ccLista').innerHTML = PAISES.filter(p => !q || p.nombre.toLowerCase().includes(q) || p.dial.startsWith(q))
+    .map(p => `<li data-iso="${p.iso}">${bandera(p.iso)}<span>${esc(p.nombre)}</span><b>+${p.dial}</b></li>`).join('')
+    || '<li>Sin resultados</li>';
+}
+$('#ccBtn').onclick = () => {
+  const m = $('#ccMenu'); m.hidden = !m.hidden;
+  if (!m.hidden) { $('#ccBuscar').value = ''; pintarPaises(); $('#ccBuscar').focus(); }
+};
+$('#ccBuscar').oninput = pintarPaises;
+$('#ccLista').onclick = e => {
+  const li = e.target.closest('li[data-iso]'); if (!li) return;
+  pais = PAISES.find(p => p.iso === li.dataset.iso);
+  pintarBotonPais(); $('#ccMenu').hidden = true; $('#telNum').focus();
+};
+document.addEventListener('click', e => { if (!e.target.closest('.cc')) $('#ccMenu').hidden = true; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') $('#ccMenu').hidden = true; });
+pintarBotonPais();
+
+// Botones Anterior/Siguiente y selector de cantidad (delegación de eventos)
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-pg]');
+  if (b) { pagina[b.dataset.v] += Number(b.dataset.pg); pintar(b.dataset.v); }
+});
+document.addEventListener('change', e => {
+  if (!e.target.classList.contains('tam')) return;
+  tam = Number(e.target.value);
+  pintar(e.target.closest('section').id.slice(2), true);
+});
+['op', 'selEm'].forEach(id => $('#' + id).onchange = actualizarForm);
+
+$('#fCliente').onsubmit = async e => {
+  e.preventDefault();
+  try {
+    await api('/api/clientes', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({...Object.fromEntries(new FormData(e.target)),
+        telefono: '+' + pais.dial + $('#telNum').value.replace(/\D/g, '')})});
+    aviso('Cliente creado'); e.target.reset(); ir('clientes');
+  } catch (err) { aviso(err.message, false); }
+};
+$('#fTrx').onsubmit = async e => {
+  e.preventDefault();
+  try {
+    await api('/api/transacciones', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(Object.fromEntries(new FormData(e.target)))});
+    aviso('Transacción realizada'); e.target.monto.value = ''; ir('transacciones');
+  } catch (err) { aviso(err.message, false); }
+};
+
+ir('resumen');
+</script>
+</body>
+</html>
