@@ -128,11 +128,10 @@ app.post('/api/transacciones', async (req, res) => {
         'SELECT saldoRetenido AS ret FROM OSBA.AuditoriaCuenta WHERE idCuenta = $1 ORDER BY id DESC LIMIT 1', [id]);
       const ret = a ? Number(a.ret) : 0;
       if (delta < 0 && Number(cuentas[id].saldo) - ret < -delta) throw new Error('Saldo disponible insuficiente');
-      const { rows: [c] } = await db.query(
-        'UPDATE OSBA.Cuenta SET saldo = saldo + $1 WHERE id = $2 RETURNING saldo - $1 AS anterior, saldo AS nuevo', [delta, id]);
-      await db.query(
-        `INSERT INTO OSBA.AuditoriaCuenta (idCuenta, tipoOperacion, valorAnterior, valorNuevo, saldoContable, saldoRetenido)
-         VALUES ($1,$2,$3,$4,$4,$5)`, [id, op, c.anterior, c.nuevo, ret]);
+      // La auditoría la inserta automáticamente el trigger trgAuditarCuenta (AFTER UPDATE sobre Cuenta).
+      // Solo le indicamos qué operación es:
+      await db.query("SELECT set_config('osba.operacion', $1, true)", [op]);
+      await db.query('UPDATE OSBA.Cuenta SET saldo = saldo + $1 WHERE id = $2', [delta, id]);
     };
     if (em) await mover(em, -monto, re ? 'TRANSFERENCIA_ENVIADA' : 'RETIRO');
     if (re) await mover(re, monto, em ? 'TRANSFERENCIA_RECIBIDA' : 'DEPOSITO');
